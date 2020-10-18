@@ -1,0 +1,37 @@
+name: Сборка
+
+on: 
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        oscript_version: [1.4.0]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    name: Сборка для ${{ matrix.oscript_version }}
+    steps:
+      - name: Последняя версия проекта
+        uses: actions/checkout@v1
+      - name: Установка OneScript
+        uses: otymko/setup-onescript@master
+        with:
+          version: ${{ matrix.oscript_version }}
+      - name: Загрузка зависимостей
+        run: opm install cli && opm install logos && opm install 1bdd && opm install 1testrunner && opm install asserts && opm install fs
+      - name: Запуск тестов
+        run: opm run test
+      - name: Сборка
+        run: opm build
+      - name: Формирование артефактов
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@master
+        with:
+          name: git2sonar.ospx
+          path: ./git2sonar*.ospx
