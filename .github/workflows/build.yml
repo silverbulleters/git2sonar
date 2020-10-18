@@ -30,6 +30,7 @@ jobs:
       - name: Сборка
         run: opm build
       - name: Формирование артефактов
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@master
         with:
           name: git2sonar.ospx
